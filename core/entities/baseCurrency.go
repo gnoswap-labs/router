@@ -7,9 +7,9 @@ type BaseCurrency struct {
 	chainId  int
 	decimals int
 
-	symbol  *string
-	name    *string
-	address *string
+	symbol  string
+	name    string
+	address string
 }
 
 func NewBaseCurrency(chainId int, decimals int, symbol string, name string) *BaseCurrency {
@@ -23,7 +23,7 @@ func NewBaseCurrency(chainId int, decimals int, symbol string, name string) *Bas
 
 		chainId:  chainId,
 		decimals: decimals,
-		symbol:   &symbol,
-		name:     &name,
+		symbol:   symbol,
+		name:     name,
 	}
 }
