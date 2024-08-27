@@ -66,6 +66,14 @@ func (f Fraction) Sub(other *Fraction) *Fraction {
 	}
 }
 
+// 이 또한 약분
+func (f Fraction) Mul(other *Fraction) *Fraction {
+	return &Fraction{
+		Numerator:   new(big.Int).Mul(f.Numerator, other.Numerator),
+		Denominator: new(big.Int).Mul(f.Denominator, other.Denominator),
+	}
+}
+
 func (f Fraction) LessThan(other *Fraction) bool {
 	leftValue := new(big.Int).Mul(f.Numerator, other.Denominator)
 	rightValue := new(big.Int).Mul(other.Numerator, f.Denominator)
@@ -86,26 +94,26 @@ func (f Fraction) Equals(other *Fraction) bool {
 }
 
 // 몫
-func (f Fraction) Quotient() *big.Int {
-	return new(big.Int).Quo(f.Numerator, f.Denominator)
-}
+//func (f Fraction) Quotient() *big.Int {
+//	return new(big.Int).Quo(f.Numerator, f.Denominator)
+//}
 
 // NOTE: 단순 나머지가 아니라 분수 형태로 표시한다
 // 좋은 형태의 함수는 아니라 생각
-func (f Fraction) Remainder() Fraction {
-	return Fraction{
-		Numerator:   new(big.Int).Rem(f.Numerator, f.Denominator),
-		Denominator: f.Denominator,
-	}
-}
+//func (f Fraction) Remainder() Fraction {
+//	return Fraction{
+//		Numerator:   new(big.Int).Rem(f.Numerator, f.Denominator),
+//		Denominator: f.Denominator,
+//	}
+//}
 
 // 역
-func (f Fraction) Invert() Fraction {
-	return Fraction{
-		Numerator:   f.Denominator,
-		Denominator: f.Numerator,
-	}
-}
+//func (f Fraction) Invert() Fraction {
+//	return Fraction{
+//		Numerator:   f.Denominator,
+//		Denominator: f.Numerator,
+//	}
+//}
 
 //func (f Fraction) GreaterThan(other interface{}) (bool, error) {
 //	otherParsed, err := tryParseFraction(other)
