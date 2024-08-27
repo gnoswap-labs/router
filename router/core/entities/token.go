@@ -1,5 +1,13 @@
 package entities
 
 type Token struct {
-	Currency
+	BaseCurrency
+}
+
+func NewToken() *Token {
+	return &Token{}
+}
+
+func (t Token) Wrapped() Token {
+	return t
 }
