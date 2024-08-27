@@ -1,6 +1,8 @@
 package fractions
 
-import "router/router/core/entities"
+import (
+	"router/core/entities"
+)
 
 type CurrencyAmount struct {
 	Fraction

@@ -1,10 +1,9 @@
-package router
+package core
 
 import (
-	"router/router/core"
-	"router/router/core/entities"
-	"router/router/core/entities/fractions"
-	"router/router/providers"
+	"router/core/entities"
+	"router/core/entities/fractions"
+	"router/core/providers"
 )
 
 type AlphaRouter struct {
@@ -20,7 +19,7 @@ func NewAlphaRouter(params AlphaRouterParams) *AlphaRouter {
 func (a AlphaRouter) route(
 	amount fractions.CurrencyAmount,
 	quoteCurrency entities.Currency,
-	tradeType core.TradeType,
+	tradeType TradeType,
 	swapConfig SwapOptions,
 ) SwapRoute {
 	originalAmount := amount
@@ -34,7 +33,7 @@ func (a AlphaRouter) route(
 	tokenOut := currencyOut.Wrapped()
 
 	// core 패키지를 TradeType 패키지로 변경하면 가독성이 더 좋아질 듯 하다.
-	if tradeType == core.EXACT_OUTPUT {
+	if tradeType == EXACT_OUTPUT {
 		// TODO: GetPortionAmount에서 반환 값인 CurrencyAmount을 반환하지 못할 경우가 있을 수도 있다.(높은 확률로)
 		portionAmount := a.portionProvider.GetPortionAmount(
 			amount,
@@ -42,13 +41,10 @@ func (a AlphaRouter) route(
 			swapConfig,
 		)
 
-		result, err := portionAmount.GreaterThan(0)
-		if err != nil {
-			// 오류
-		}
-		if result {
-			amount = amount.add(portionAmount)
-		}
+		//result := portionAmount.GreaterThan(0)
+		//if result {
+		//	amount = amount.add(portionAmount)
+		//}
 	}
 
 	swapRoute := SwapRoute{}
@@ -56,11 +52,11 @@ func (a AlphaRouter) route(
 }
 
 func (a AlphaRouter) determineCurrencyInOutFromTradeType(
-	tradeType core.TradeType,
+	tradeType TradeType,
 	amount fractions.CurrencyAmount,
 	quoteCurrency entities.Currency,
 ) (entities.Currency, entities.Currency) {
-	if tradeType == core.EXACT_INPUT {
+	if tradeType == EXACT_INPUT {
 		return amount.Currency, quoteCurrency
 	} else {
 		return quoteCurrency, amount.Currency
