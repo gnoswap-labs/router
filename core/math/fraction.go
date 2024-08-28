@@ -5,11 +5,18 @@ import (
 	"math/big"
 )
 
+// Fraction
+// 큰 수의 분수 표현을 위해 만든 구조체.
+// 모든 수는 계산이 끝날 때마다 약분되며 0은 0/1로 표현한다.
+// 또한 음수는 분자에만 표현된다. (2/(-3)은 -2/3으로 표현한다.)
 type Fraction struct {
 	Numerator   *big.Int
 	Denominator *big.Int
 }
 
+// NewFraction
+// int64 변수 2개를 분자, 분모 순으로 입력받아 Fraction 객체를 생성해주는 함수.
+// 분모로 0이 입력된다면 panic을 발생시킨다.
 func NewFraction(numerator int64, denominator int64) *Fraction {
 	if denominator == 0 {
 		panic(errors.New("denominator cannot be zero"))
@@ -33,6 +40,8 @@ func NewFraction(numerator int64, denominator int64) *Fraction {
 	return fraction
 }
 
+// Add
+// 앞의 분수에서 뒤의 분수를 더한 값을 리턴하는 함수.
 func (f *Fraction) Add(o *Fraction) *Fraction {
 	numerator1 := new(big.Int).Mul(f.Numerator, o.Denominator)
 	numerator2 := new(big.Int).Mul(o.Numerator, f.Denominator)
@@ -47,6 +56,8 @@ func (f *Fraction) Add(o *Fraction) *Fraction {
 	}
 }
 
+// Sub
+// 앞의 분수에서 뒤의 분수를 뺀 값을 리턴하는 함수.
 func (f *Fraction) Sub(o *Fraction) *Fraction {
 	numerator1 := new(big.Int).Mul(f.Numerator, o.Denominator)
 	numerator2 := new(big.Int).Mul(o.Numerator, f.Denominator)
@@ -61,6 +72,8 @@ func (f *Fraction) Sub(o *Fraction) *Fraction {
 	}
 }
 
+// Mul
+// 앞의 분수에서 뒤의 분수를 곱한 값을 리턴하는 함수.
 func (f *Fraction) Mul(other *Fraction) *Fraction {
 	numerator := new(big.Int).Mul(f.Numerator, other.Numerator)
 	denominator := new(big.Int).Mul(f.Denominator, other.Denominator)
@@ -78,6 +91,8 @@ func (f *Fraction) Mul(other *Fraction) *Fraction {
 	}
 }
 
+// Div
+// 앞의 분수에서 뒤의 분수를 나눈 값을 리턴하는 함수.
 func (f *Fraction) Div(other *Fraction) *Fraction {
 	numerator := new(big.Int).Mul(f.Numerator, other.Denominator)
 	denominator := new(big.Int).Mul(f.Denominator, other.Numerator)
