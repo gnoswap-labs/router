@@ -55,6 +55,7 @@ func TestFraction_Add(t *testing.T) {
 		{"1/-2 + 1/-3", 1, -2, 1, -3, -5, 6},
 		{"2/1 + 15/7", 2, 1, 15, 7, 29, 7},
 		{"2/1 + -15/7", 2, 1, -15, 7, -1, 7},
+		{"1000000/1000001 + 1000000/1000001", 1000000, 1000001, 1000000, 1000001, 2000000, 1000001},
 	}
 
 	for _, tt := range tests {
@@ -84,6 +85,7 @@ func TestFraction_Sub(t *testing.T) {
 		{-1, 2, 1, 3, -5, 6},
 		{0, 1, 16, 2, 8, -1},
 		{1, 2, 1, 2, 0, 1},
+		{1000000, 1000001, 1, 1000001, 999999, 1000001},
 	}
 
 	for _, tt := range tests {
@@ -101,7 +103,11 @@ func TestFraction_Sub(t *testing.T) {
 	}
 }
 
+
+
+
 func TestFraction_Mul(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		numerator1, denominator1               int64
 		numerator2, denominator2               int64
@@ -109,9 +115,17 @@ func TestFraction_Mul(t *testing.T) {
 	}{
 		{1, 2, 1, 3, 1, 6},
 		{-100, 10, 256, -10, 256, 1},
+		{0, 1, 1, 1, 0, 1},
+		{1, 2, 0, 1, 0, 1},
+		{1, 2, -1, 2, -1, 4},
+		{-1, 2, 1, 2, -1, 4},
+		{1, 3, 1, 2, 1, 6},
+		{2, 3, 3, 2, 1, 1},
+		{2, 3, -3, 2, -1, 1},
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run("", func(t *testing.T) {
 			fraction1 := NewFraction(tt.numerator1, tt.denominator1)
 			fraction2 := NewFraction(tt.numerator2, tt.denominator2)
@@ -126,6 +140,7 @@ func TestFraction_Mul(t *testing.T) {
 }
 
 func TestFraction_Div(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		numerator1, denominator1               int64
 		numerator2, denominator2               int64
@@ -133,17 +148,31 @@ func TestFraction_Div(t *testing.T) {
 	}{
 		{1, 2, 1, 3, 3, 2},
 		{-100, 10, 256, -10, 100, 256},
+		{0, 1, 1, 1, 0, 1},
+		{1, 2, 1, 0, 0, 0},
+		{-1, 2, 1, 2, -1, 1},
+		{1, 3, 1, 2, 2, 3},
+		{2, 3, 3, 2, 4, 9},
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run("", func(t *testing.T) {
+			defer func() {
+				if r := recover(); r != nil {
+					if tt.denominator2 == 0 {
+						return
+					}
+					t.Errorf("Div(%d/%d, %d/%d) panicked unexpectedly", tt.numerator1, tt.denominator1, tt.numerator2, tt.denominator2)
+				}
+			}()
 			fraction1 := NewFraction(tt.numerator1, tt.denominator1)
 			fraction2 := NewFraction(tt.numerator2, tt.denominator2)
 			result := fraction1.Div(fraction2)
 			expected := NewFraction(tt.expectedNumerator, tt.expectedDenominator)
 
 			if result.Numerator.Cmp(expected.Numerator) != 0 || result.Denominator.Cmp(expected.Denominator) != 0 {
-				t.Fatalf("Div: expected %v, got %v", expected, result)
+				t.Fatalf("Div: expected %v/%v, got %v/%v", expected.Numerator, expected.Denominator, result.Numerator, result.Denominator)
 			}
 		})
 	}
