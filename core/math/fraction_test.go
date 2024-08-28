@@ -109,23 +109,52 @@ func TestFraction_Mul(t *testing.T) {
 		numerator1, denominator1               int64
 		numerator2, denominator2               int64
 		expectedNumerator, expectedDenominator int64
+		shouldPanic                            bool
 	}{
-		{1, 2, 1, 3, 1, 6},
-		{-100, 10, 256, -10, 256, 1},
-		{0, 1, 1, 1, 0, 1},
-		{1, 2, 0, 1, 0, 1},
-		{1, 2, -1, 2, -1, 4},
-		{-1, 2, 1, 2, -1, 4},
-		{1, 3, 1, 2, 1, 6},
-		{2, 3, 3, 2, 1, 1},
-		{2, 3, -3, 2, -1, 1},
+		{1, 2, 1, 3, 1, 6, false},
+		{-100, 10, 256, -10, 256, 1, false},
+		{0, 1, 1, 1, 0, 1, false},
+		{1, 2, 0, 1, 0, 1, false},
+		{1, 2, 1, 0, 0, 0, true},
+		{1, 2, -1, 2, -1, 4, false},
+		{-1, 2, 1, 2, -1, 4, false},
+		{1, 3, 1, 2, 1, 6, false},
+		{2, 3, 3, 2, 1, 1, false},
+		{2, 3, -3, 2, -1, 1, false},
 	}
 
 	for _, tt := range tests {
 		tt := tt
 		t.Run("", func(t *testing.T) {
+			defer func() {
+				if r := recover(); r != nil {
+					if tt.shouldPanic {
+						return
+					}
+					t.Fatalf("Mul: unexpected panic: %v", r)
+				}
+			}()
 			fraction1 := NewFraction(tt.numerator1, tt.denominator1)
+
+			defer func() {
+				if r := recover(); r != nil {
+					if tt.shouldPanic {
+						return
+					}
+					t.Fatalf("Mul: unexpected panic: %v", r)
+				}
+			}()
 			fraction2 := NewFraction(tt.numerator2, tt.denominator2)
+			println("pass here", fraction1, fraction2)
+
+			defer func() {
+				if r := recover(); r != nil {
+					if tt.shouldPanic {
+						return
+					}
+					t.Fatalf("Mul: unexpected panic: %v", r)
+				}
+			}()
 			result := fraction1.Mul(fraction2)
 			expected := NewFraction(tt.expectedNumerator, tt.expectedDenominator)
 
@@ -142,14 +171,15 @@ func TestFraction_Div(t *testing.T) {
 		numerator1, denominator1               int64
 		numerator2, denominator2               int64
 		expectedNumerator, expectedDenominator int64
+		expectedError                          bool
 	}{
-		{1, 2, 1, 3, 3, 2},
-		{-100, 10, 256, -10, 100, 256},
-		{0, 1, 1, 1, 0, 1},
-		{1, 2, 1, 0, 0, 0},
-		{-1, 2, 1, 2, -1, 1},
-		{1, 3, 1, 2, 2, 3},
-		{2, 3, 3, 2, 4, 9},
+		{1, 2, 1, 3, 3, 2, false},
+		{-100, 10, 256, -10, 100, 256, false},
+		{0, 1, 1, 1, 0, 1, false},
+		{1, 2, 1, 0, 0, 0, true},
+		{-1, 2, 1, 2, -1, 1, false},
+		{1, 3, 1, 2, 2, 3, false},
+		{2, 3, 3, 2, 4, 9, false},
 	}
 
 	for _, tt := range tests {
@@ -158,9 +188,10 @@ func TestFraction_Div(t *testing.T) {
 			defer func() {
 				if r := recover(); r != nil {
 					if tt.denominator2 == 0 {
-						return
+						if !tt.expectedError {
+							t.Fatalf("Div: unexpected panic: %v", r)
+						}
 					}
-					t.Errorf("Div(%d/%d, %d/%d) panicked unexpectedly", tt.numerator1, tt.denominator1, tt.numerator2, tt.denominator2)
 				}
 			}()
 			fraction1 := NewFraction(tt.numerator1, tt.denominator1)
