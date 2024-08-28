@@ -145,7 +145,6 @@ func TestFraction_Mul(t *testing.T) {
 				}
 			}()
 			fraction2 := NewFraction(tt.numerator2, tt.denominator2)
-			println("pass here", fraction1, fraction2)
 
 			defer func() {
 				if r := recover(); r != nil {
