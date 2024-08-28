@@ -2,7 +2,12 @@ package math
 
 import (
 	"errors"
+	"fmt"
 	"math/big"
+)
+
+var (
+	ErrDenominatorZero = errors.New("fraction error: denominator cannot be zero")
 )
 
 type Fraction struct {
@@ -12,8 +17,7 @@ type Fraction struct {
 
 func NewFraction(numerator int64, denominator int64) *Fraction {
 	if denominator == 0 {
-		//return nil, errors.New("분모는 0일 수 없습니다")
-		panic(errors.New("denominator is zero"))
+		panic(ErrDenominatorZero)
 	}
 
 	// 분모는 양수만
@@ -43,7 +47,8 @@ func tryParseFraction(value interface{}) (*Fraction, error) {
 	case int64:
 		return NewFraction(v, 1), nil
 	default:
-		return nil, errors.New("not a fraction")
+		msg := fmt.Sprintf("failed to parse fraction: %v", value)
+		return nil, errors.New(msg)
 	}
 }
 
@@ -51,7 +56,7 @@ func tryParseFraction(value interface{}) (*Fraction, error) {
 func (f *Fraction) Add(other interface{}) *Fraction {
 	o, err := tryParseFraction(other)
 	if err != nil {
-		panic("aaaaaaa")
+		panic(err)
 	}
 
 	numerator1 := new(big.Int).Mul(f.Numerator, o.Denominator)
@@ -72,7 +77,7 @@ func (f *Fraction) Add(other interface{}) *Fraction {
 func (f *Fraction) Sub(other interface{}) *Fraction {
 	o, err := tryParseFraction(other)
 	if err != nil {
-		panic("aaaaaa")
+		panic(err)
 	}
 
 	numerator1 := new(big.Int).Mul(f.Numerator, o.Denominator)
