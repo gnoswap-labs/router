@@ -1,7 +1,7 @@
 package core
 
 import (
-	"router/core/entities/fractions"
+	"router/core/coins/fractions"
 )
 
 // interface는 I 접두사를 붙이는 것이 관행인가?
