@@ -2,10 +2,11 @@ package fractions
 
 import (
 	"router/core/entities"
+	"router/core/math"
 )
 
 type CurrencyAmount struct {
-	Fraction
+	math.Fraction
 	Currency entities.Currency
 }
 
