@@ -103,9 +103,6 @@ func TestFraction_Sub(t *testing.T) {
 	}
 }
 
-
-
-
 func TestFraction_Mul(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
