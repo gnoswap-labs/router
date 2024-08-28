@@ -1,6 +1,8 @@
 package entities
 
-var WGNOT = map[int]Token{
+import "router/core/currency"
+
+var WGNOT = map[int]currency.Token{
 	//1:  NewToken(),
 	//2:  NewToken(),
 	//3:  NewToken(),

@@ -1,5 +1,7 @@
 package entities
 
+import "router/core/currency"
+
 type Gnot struct {
 	NativeCurrency
 }
@@ -7,14 +9,14 @@ type Gnot struct {
 func NewGnot(chainId int) *Gnot {
 	return &Gnot{
 		NativeCurrency: NativeCurrency{
-			BaseCurrency: BaseCurrency{
+			currency.BaseCurrency: currency.BaseCurrency{
 				chainId: chainId,
 			},
 		},
 	}
 }
 
-func (g Gnot) Wrapped() Token {
+func (g Gnot) Wrapped() currency.Token {
 	wgnot := WGNOT[g.chainId]
 	// invariant(!!wgnot, 'WRAPPED')
 	return wgnot

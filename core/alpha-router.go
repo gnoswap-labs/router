@@ -1,7 +1,7 @@
 package core
 
 import (
-	"router/core/entities"
+	"router/core/currency"
 	"router/core/entities/fractions"
 )
 
@@ -17,7 +17,7 @@ func NewAlphaRouter(params AlphaRouterParams) *AlphaRouter {
 // 라우트 한 결과는 SwapRoute
 func (a AlphaRouter) route(
 	amount fractions.CurrencyAmount,
-	quoteCurrency entities.Currency,
+	quoteCurrency currency.Currency,
 	tradeType TradeType,
 	swapConfig SwapOptions,
 ) SwapRoute {
@@ -54,8 +54,8 @@ func (a AlphaRouter) route(
 func (a AlphaRouter) determineCurrencyInOutFromTradeType(
 	tradeType TradeType,
 	amount fractions.CurrencyAmount,
-	quoteCurrency entities.Currency,
-) (entities.Currency, entities.Currency) {
+	quoteCurrency currency.Currency,
+) (currency.Currency, currency.Currency) {
 	if tradeType == EXACT_INPUT {
 		return amount.Currency, quoteCurrency
 	} else {
