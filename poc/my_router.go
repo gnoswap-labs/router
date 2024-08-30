@@ -56,9 +56,8 @@ func (m MyRouter) Swap(request SwapRequest) SwapResult {
 func (m MyRouter) getReserveOfTokenFromPool(fromTokenName string, toTokenName string, pool Pool) (float64, float64) {
 	if fromTokenName == pool.TokenA.Symbol {
 		return pool.ReserveA, pool.ReserveB
-	} else {
-		return pool.ReserveB, pool.ReserveA
 	}
+	return pool.ReserveB, pool.ReserveA
 }
 
 func (m MyRouter) calculateAmountOfToToken(reserveFromToken, reserveToToken, amountIn float64, pool Pool) float64 {
@@ -82,6 +81,6 @@ func (m MyRouter) calculateAmountOfToToken(reserveFromToken, reserveToToken, amo
 	return dY
 }
 
-func (m MyRouter) dijkrtra() {
+func (m MyRouter) dijskrtra() {
 
 }
