@@ -1,7 +1,6 @@
 package poc
 
 import (
-	"errors"
 	"fmt"
 	"math"
 )
@@ -48,7 +47,7 @@ func (m *MyRouter) Swap(request SwapRequest) (SwapResult, error) {
 		}, nil
 	}
 
-	return SwapResult{}, errors.New("pool not found")
+	return SwapResult{}, fmt.Errorf("pool %s not found", poolName)
 }
 
 func (m *MyRouter) getReserveOfTokenFromPool(fromTokenName string, toTokenName string, pool Pool) (float64, float64) {
