@@ -2,11 +2,12 @@ package currency
 
 type BaseCurrency struct {
 	// The chain ID on which this currency resides
-	chainId int
+	ChainId int64
 	// The decimals used in representing currency amounts
-	decimals int
+	decimals int64
 
 	// 이 아래 필드는 옵션
+
 	// The symbol of the currency, i.e. a short textual non-unique identifier
 	symbol string
 	// The name of the currency, i.e. a descriptive textual non-unique identifier
@@ -14,7 +15,8 @@ type BaseCurrency struct {
 	address string
 }
 
-func NewBaseCurrency(chainId int, decimals int, symbol string, name string) *BaseCurrency {
+// 이게 필요할까??
+func NewBaseCurrency(chainId int64, decimals int64, symbol string, name string) *BaseCurrency {
 	// 아래 코드는 원문
 	//invariant(Number.isSafeInteger(chainId), 'CHAIN_ID');
 	//invariant(
@@ -28,7 +30,7 @@ func NewBaseCurrency(chainId int, decimals int, symbol string, name string) *Bas
 	}
 
 	return &BaseCurrency{
-		chainId:  chainId,
+		ChainId:  chainId,
 		decimals: decimals,
 		symbol:   symbol,
 		name:     name,

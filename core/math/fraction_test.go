@@ -8,7 +8,7 @@ func TestNewFraction(t *testing.T) {
 	tests := []struct {
 		numerator, denominator                 int64
 		expectedNumerator, expectedDenominator int64
-		expectedError                          bool
+		expectedPanic                          bool
 	}{
 		{1, 1, 1, 1, false},
 		{2, 2, 1, 1, false},
@@ -25,7 +25,7 @@ func TestNewFraction(t *testing.T) {
 		t.Run("", func(t *testing.T) {
 			defer func() {
 				if r := recover(); r != nil {
-					if !test.expectedError {
+					if !test.expectedPanic {
 						t.Fatalf("NewFraction: unexpected panic: %v", r)
 					}
 				}
@@ -109,7 +109,7 @@ func TestFraction_Mul(t *testing.T) {
 		numerator1, denominator1               int64
 		numerator2, denominator2               int64
 		expectedNumerator, expectedDenominator int64
-		shouldPanic                            bool
+		expectedPanic                          bool
 	}{
 		{1, 2, 1, 3, 1, 6, false},
 		{-100, 10, 256, -10, 256, 1, false},
@@ -128,32 +128,15 @@ func TestFraction_Mul(t *testing.T) {
 		t.Run("", func(t *testing.T) {
 			defer func() {
 				if r := recover(); r != nil {
-					if tt.shouldPanic {
+					if tt.expectedPanic {
 						return
 					}
 					t.Fatalf("Mul: unexpected panic: %v", r)
 				}
 			}()
 			fraction1 := NewFraction(tt.numerator1, tt.denominator1)
-
-			defer func() {
-				if r := recover(); r != nil {
-					if tt.shouldPanic {
-						return
-					}
-					t.Fatalf("Mul: unexpected panic: %v", r)
-				}
-			}()
 			fraction2 := NewFraction(tt.numerator2, tt.denominator2)
 
-			defer func() {
-				if r := recover(); r != nil {
-					if tt.shouldPanic {
-						return
-					}
-					t.Fatalf("Mul: unexpected panic: %v", r)
-				}
-			}()
 			result := fraction1.Mul(fraction2)
 			expected := NewFraction(tt.expectedNumerator, tt.expectedDenominator)
 
@@ -170,7 +153,7 @@ func TestFraction_Div(t *testing.T) {
 		numerator1, denominator1               int64
 		numerator2, denominator2               int64
 		expectedNumerator, expectedDenominator int64
-		expectedError                          bool
+		expectedPanic                          bool
 	}{
 		{1, 2, 1, 3, 3, 2, false},
 		{-100, 10, 256, -10, 100, 256, false},
@@ -186,10 +169,8 @@ func TestFraction_Div(t *testing.T) {
 		t.Run("", func(t *testing.T) {
 			defer func() {
 				if r := recover(); r != nil {
-					if tt.denominator2 == 0 {
-						if !tt.expectedError {
-							t.Fatalf("Div: unexpected panic: %v", r)
-						}
+					if !tt.expectedPanic {
+						t.Fatalf("Div: unexpected panic: %v", r)
 					}
 				}
 			}()
