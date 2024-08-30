@@ -33,7 +33,10 @@ func TestMyRouter(t *testing.T) {
 			router := NewMyRouter(test.edges)
 
 			for i, request := range test.requests {
-				result := router.Swap(request)
+				result, err := router.Swap(request)
+				if err != nil {
+					t.Fatalf("Swap Error: can't find pool: %v:%v", request.FromToken, request.ToToken)
+				}
 
 				diff := math.Abs(result.AmountOut - test.results[i].AmountOut)
 				tolerance := 0.00000001

@@ -1,6 +1,7 @@
 package poc
 
 import (
+	"errors"
 	"fmt"
 	"math"
 )
@@ -21,7 +22,7 @@ func NewMyRouter(edges []*Pool) *MyRouter {
 	return router
 }
 
-func (m MyRouter) Swap(request SwapRequest) SwapResult {
+func (m *MyRouter) Swap(request SwapRequest) (SwapResult, error) {
 	// poolName은 from:to가 아니라 to:from일 수 있다.
 	poolName := request.FromToken + ":" + request.ToToken
 
@@ -33,7 +34,6 @@ func (m MyRouter) Swap(request SwapRequest) SwapResult {
 
 		//saveSwap()
 		// TODO: 지금은 간이로 코드 작성하고 나중에 함수로 빼든 리팩토링 할 것
-		// get by value라 적용이 안되는 중
 		if pool.TokenA.Symbol == request.FromToken {
 			pool.ReserveA += request.AmountIn
 			pool.ReserveB += exchangedAmount
@@ -45,22 +45,20 @@ func (m MyRouter) Swap(request SwapRequest) SwapResult {
 		return SwapResult{
 			AmountIn:  request.AmountIn,
 			AmountOut: math.Abs(exchangedAmount),
-		}
-	} else {
-		fmt.Println("pool not found")
+		}, nil
 	}
 
-	return SwapResult{}
+	return SwapResult{}, errors.New("pool not found")
 }
 
-func (m MyRouter) getReserveOfTokenFromPool(fromTokenName string, toTokenName string, pool Pool) (float64, float64) {
+func (m *MyRouter) getReserveOfTokenFromPool(fromTokenName string, toTokenName string, pool Pool) (float64, float64) {
 	if fromTokenName == pool.TokenA.Symbol {
 		return pool.ReserveA, pool.ReserveB
 	}
 	return pool.ReserveB, pool.ReserveA
 }
 
-func (m MyRouter) calculateAmountOfToToken(reserveFromToken, reserveToToken, amountIn float64, pool Pool) float64 {
+func (m *MyRouter) calculateAmountOfToToken(reserveFromToken, reserveToToken, amountIn float64, pool Pool) float64 {
 	X := reserveFromToken
 	Y := reserveToToken
 	dX := amountIn
@@ -81,6 +79,6 @@ func (m MyRouter) calculateAmountOfToToken(reserveFromToken, reserveToToken, amo
 	return dY
 }
 
-func (m MyRouter) dijskrtra() {
+func (m *MyRouter) dijskrtra() {
 
 }
