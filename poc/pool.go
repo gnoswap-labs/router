@@ -1,11 +1,9 @@
 package poc
 
-// Pool
-// kind of edge
 type Pool struct {
 	Address string
 
-	TokenA Token // 효율을 위해서는 포인터로 가져오는게 좋을만 하다.
+	TokenA Token // Todo: 효율을 위해서는 포인터로 가져오는게 좋을만 하다.
 	TokenB Token
 
 	ReserveA float64

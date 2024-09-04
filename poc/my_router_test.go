@@ -64,9 +64,10 @@ func TestMyRouterV2(t *testing.T) {
 	}
 
 	tests := []struct {
-		edges    []*Pool
-		requests []SwapRequest
-		results  []SwapResult
+		edges           []*Pool
+		requests        []SwapRequest
+		results         []SwapResult
+		maxSearchLength int
 	}{
 		{
 			[]*Pool{
@@ -76,8 +77,21 @@ func TestMyRouterV2(t *testing.T) {
 			[]SwapRequest{
 				{"a", "c", 2000}},
 			[]SwapResult{
-				{"a", "c", 2000.0, 571.4285714285},
+				{"a", "c", 2000, 571.4285714285},
 			},
+			2,
+		},
+		{
+			[]*Pool{
+				{"a:b", tokens["a"], tokens["b"], 4000, 1000},
+				{"a:c", tokens["a"], tokens["c"], 2000, 1000},
+				{"b:c", tokens["b"], tokens["c"], 2000, 4000}},
+			[]SwapRequest{
+				{"a", "c", 2000}},
+			[]SwapResult{
+				{"a", "c", 2000, 500},
+			},
+			1,
 		},
 	}
 
@@ -86,7 +100,7 @@ func TestMyRouterV2(t *testing.T) {
 			router := NewMyRouter(test.edges)
 
 			for i, request := range test.requests {
-				result, err := router.findRouteV2(request, 10, nil)
+				result, err := router.findRouteV2(request, test.maxSearchLength, nil)
 				if err != nil {
 					t.Fatalf("Router: can't find path: %v:%v", request.FromTokenSymbol, request.ToTokenSymbol)
 				}

@@ -5,5 +5,5 @@ type SwapRequest struct {
 	ToTokenSymbol   string
 	AmountIn        float64
 	//MinAmountOut int
-	//UserAddress  string // option
+	//UserAddress  string // optional
 }

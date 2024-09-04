@@ -5,6 +5,8 @@ import (
 	"math"
 )
 
+// MyRouter
+// router PoC
 type MyRouter struct {
 	network map[string]*Pool
 	adj     map[string][]string
@@ -35,11 +37,14 @@ func (m *MyRouter) Route(request SwapRequest) ([]SwapResult, error) {
 	//return m.findRouteV2(startTokenSymbol, endTokenSymbol, AmountIn, 1)
 }
 
+// findRouteV1
+// 두 토큰을 direct swap한다
 func (m *MyRouter) findRouteV1(request SwapRequest) ([]SwapResult, error) {
 	return m.swap(request.FromTokenSymbol, request.ToTokenSymbol, request.AmountIn)
 }
 
-// 경로가 maxLength 이하의 길이인 경로를 탐색해 route를 구한다.
+// findRouteV2
+// 경로가 maxLength 이하의 길이인 경로를 탐색해 route를 구한다
 func (m *MyRouter) findRouteV2(request SwapRequest, maxLength int, routes []SwapResult) ([]SwapResult, error) {
 	startTokenSymbol, beforeTokenSymbol, amountIn := m.setSymbolAndAmountIn(request, routes)
 	if startTokenSymbol == request.ToTokenSymbol {
@@ -60,8 +65,10 @@ func (m *MyRouter) findRouteV2(request SwapRequest, maxLength int, routes []Swap
 			continue
 		}
 
-		workablePath, _ := m.findRouteV2(request, maxLength, append(routes, route...))
-		// TODO: 여기에 스왑한 내용 복구가 필요합니다!
+		workablePath, findRouteErr := m.findRouteV2(request, maxLength, append(routes, route...))
+		if findRouteErr != nil {
+			continue
+		}
 
 		if len(workablePath) != 0 && (bestPath == nil || (bestPath[len(bestPath)-1].AmountOut < workablePath[len(workablePath)-1].AmountOut)) {
 			bestPath = workablePath
@@ -71,6 +78,7 @@ func (m *MyRouter) findRouteV2(request SwapRequest, maxLength int, routes []Swap
 	return bestPath, nil
 }
 
+// setSymbolAndAmountIn
 func (m *MyRouter) setSymbolAndAmountIn(request SwapRequest, routes []SwapResult) (string, string, float64) {
 	if routes == nil { // 처음 함수가 호출된 거라면
 		return request.FromTokenSymbol, "", request.AmountIn
@@ -86,7 +94,6 @@ func (m *MyRouter) swap(fromTokenSymbol string, toTokenSymbol string, amountIn f
 	poolName := fromTokenSymbol + ":" + toTokenSymbol
 
 	if pool, ok := m.network[poolName]; ok {
-		//fmt.Printf("pool found: %v\n", pool) // for debug
 		reserveFromToken, reserveToToken := m.getReserveOfTokenFromPool(fromTokenSymbol, toTokenSymbol, *pool)
 		amountOut := m.calculateAmountOfToToken(reserveFromToken, reserveToToken, amountIn, *pool)
 
@@ -104,6 +111,7 @@ func (m *MyRouter) swap(fromTokenSymbol string, toTokenSymbol string, amountIn f
 	return nil, fmt.Errorf("pool %s not found", poolName)
 }
 
+// saveSwap
 func (m *MyRouter) saveSwap(fromTokenSymbol string, amountIn, amountOut float64, pool *Pool) {
 	if pool.TokenA.Symbol == fromTokenSymbol {
 		pool.ReserveA += amountIn
