@@ -6,27 +6,59 @@ import (
 	"testing"
 )
 
+const tolerance = 0.00000001 // 오차 범위
+
 func TestMyRouterV1(t *testing.T) {
-	tolerance := 0.00000001 // 오차 범위
 	tokens := map[string]Token{
-		"a": Token{Symbol: "a"},
-		"b": Token{Symbol: "b"},
+		"a": {Symbol: "a"},
+		"b": {Symbol: "b"},
 	}
 
 	tests := []struct {
+		name     string
 		edges    []*Pool
 		requests []SwapRequest
 		results  []SwapResult
 	}{
 		{
-			[]*Pool{
-				{"a:b", tokens["a"], tokens["b"], 4000, 1000}},
-			[]SwapRequest{
-				{"a", "b", 2000}},
-			[]SwapResult{
+			name: "단일 홉 스왑",
+			edges: []*Pool{
+				{"a:b", tokens["a"], tokens["b"], 4000, 1000},
+			},
+			requests: []SwapRequest{
+				{"a", "b", 2000},
+			},
+			results: []SwapResult{
 				{"a", "b", 2000.0, 2000.0 / 6.0},
 			},
 		},
+		// {
+		// 	name: "극단적인 비율 스왑",
+		// 	edges: []*Pool{
+		// 		{"a:b", tokens["a"], tokens["b"], 1000000, 1},
+		// 	},
+		// 	requests: []SwapRequest{
+		// 		{"a", "b", 500},
+		// 	},
+		// 	results: []SwapResult{
+		// 		{"a", "b", 500, 0.0004999999999999999},
+		// 	},
+		// },
+		// {
+		// 	name: "양방향 스왑",
+		// 	edges: []*Pool{
+		// 		{"a:b", tokens["a"], tokens["b"], 4000, 1000},
+		// 		{"b:a", tokens["b"], tokens["a"], 1000, 4000},
+		// 	},
+		// 	requests: []SwapRequest{
+		// 		{"a", "b", 2000},
+		// 		{"b", "a", 500},
+		// 	},
+		// 	results: []SwapResult{
+		// 		{"a", "b", 2000, 2000.0 / 6.0},
+		// 		{"b", "a", 500, 500.0 / 6.0},
+		// 	},
+		// },
 	}
 
 	for _, test := range tests {
@@ -55,12 +87,11 @@ func TestMyRouterV1(t *testing.T) {
 }
 
 func TestMyRouterV2(t *testing.T) {
-	tolerance := 0.00000001 // 오차 범위
 	tokens := map[string]Token{
-		"a": Token{Symbol: "a"},
-		"b": Token{Symbol: "b"},
-		"c": Token{Symbol: "c"},
-		"d": Token{Symbol: "d"},
+		"a": {Symbol: "a"},
+		"b": {Symbol: "b"},
+		"c": {Symbol: "c"},
+		"d": {Symbol: "d"},
 	}
 
 	tests := []struct {
@@ -71,30 +102,32 @@ func TestMyRouterV2(t *testing.T) {
 		maxSearchLength int
 	}{
 		{
-			"최대 검색 길이 1의 다중 홉 스왑",
-			[]*Pool{
+			name: "최대 검색 길이 1의 다중 홉 스왑",
+			edges: []*Pool{
 				{"a:b", tokens["a"], tokens["b"], 4000, 1000},
 				{"a:c", tokens["a"], tokens["c"], 2000, 1000},
 				{"b:c", tokens["b"], tokens["c"], 2000, 4000}},
-			[]SwapRequest{
+			requests: []SwapRequest{
 				{"a", "c", 2000}},
-			[]SwapResult{
+			results: []SwapResult{
 				{"a", "c", 2000, 571.4285714285},
 			},
-			2,
+			maxSearchLength: 2,
 		},
 		{
-			"최대 검색 길이 2의 다중 홉 스왑",
-			[]*Pool{
+			name: "최대 검색 길이 2의 다중 홉 스왑",
+			edges: []*Pool{
 				{"a:b", tokens["a"], tokens["b"], 4000, 1000},
 				{"a:c", tokens["a"], tokens["c"], 2000, 1000},
-				{"b:c", tokens["b"], tokens["c"], 2000, 4000}},
-			[]SwapRequest{
-				{"a", "c", 2000}},
-			[]SwapResult{
+				{"b:c", tokens["b"], tokens["c"], 2000, 4000},
+			},
+			requests: []SwapRequest{
+				{"a", "c", 2000},
+			},
+			results: []SwapResult{
 				{"a", "c", 2000, 500},
 			},
-			1,
+			maxSearchLength: 1,
 		},
 	}
 
