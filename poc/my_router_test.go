@@ -64,6 +64,7 @@ func TestMyRouterV2(t *testing.T) {
 	}
 
 	tests := []struct {
+	        name            string
 		edges           []*Pool
 		requests        []SwapRequest
 		results         []SwapResult
