@@ -4,56 +4,97 @@ import "router/core/currency"
 
 type AlphaRouter struct {
 	//chainId ChainId
-	//portionProvider IPortionProvider
+	portionProvider IPortionProvider
 }
 
 func NewAlphaRouter(params AlphaRouterParams) *AlphaRouter {
 	return &AlphaRouter{}
 }
 
-func (a AlphaRouter) route(
-	baseCurrency currency.Currency, // currencyIn
-	quoteCurrency currency.Currency, // currencyOut으로 바꿔도 될 것 같다.
-	amount float64,
-	// amount fractions.CurrencyAmount,
-	// tradeType TradeType,
-	// swapConfig SwapOptions,
+// Todo: goroutine
+func (a *AlphaRouter) route(
+	baseCurrency currency.Currency,
+	quoteCurrency currency.Currency,
+	amount float64, // todo: float64 -> fraction
+	tradeType TradeType,
+	swapConfig SwapOptions,
+	routerConfig AlphaRouterConfig,
 ) SwapRoute {
-	//originalAmount := amount
+	//originalAmount := amount // for save
 
-	// currencyIn, currencyOut은 Currency 타입이고
-	// Currency 타입은 NativeCurrency(GNOT)이거나 Token 타입이다.
-	// 아래에서 Token 타입이길 원하는 듯하다.
-	//tokenIn := currencyIn.Wrapped()
-	//tokenOut := currencyOut.Wrapped()
+	//currencyIn, currencyOut := a.determineCurrencyInOutFromTradeType(tradeType, baseCurrency, quoteCurrency)
 
-	//core 패키지를 TradeType 패키지로 변경하면 가독성이 더 좋아질 듯 하다.
-	//if tradeType == EXACT_OUTPUT {
-	//	// TODO: GetPortionAmount에서 반환 값인 CurrencyAmount을 반환하지 못할 경우가 있을 수도 있다.(높은 확률로)
-	//	portionAmount := a.portionProvider.GetPortionAmount(
-	//		amount,
-	//		tradeType,
-	//		swapConfig,
-	//	)
-	//
-	//result := portionAmount.GreaterThan(0)
-	//if result {
-	//	amount = amount.add(portionAmount)
+	// token은 currency의 wrapped된 버전이다.
+	//tokenIn := currencyIn.GetToken()
+	//tokenOut := currencyOut.GetToken()
+
+	// 왠만하면 함수로 뺄 것
+	// 내용 이해 필요
+	if tradeType == EXACT_OUTPUT {
+		portionAmount, portionErr := a.portionProvider.GetPortionAmount(amount, tradeType, swapConfig)
+
+		if portionErr == nil && portionAmount > 0 {
+			// In case of exact out swap, before we route, we need to make sure that the
+			// token out amount accounts for flat portion, and token in amount after the best swap route contains the token in equivalent of portion.
+			// In other words, in case a pool's LP fee bps is lower than the portion bps (0.01%/0.05% for v3), a pool can go insolvency.
+			// This is because instead of the swapper being responsible for the portion,
+			// the pool instead gets responsible for the portion.
+			// The addition below avoids that situation.
+			amount += portionAmount
+		}
+	}
+
+	// routing config merge다루는 부분 패스
+	//routerConfig = setRouterConfig(routingConfig, chainId)
+
+	// tokenIn 또는 tokenOut과 동일한 값...
+	//quoteToken := quoteCurrency.GetToken()
+
+	// main logic?
+	//routes := a.getSwapRouteFromChain(tokenIn, tokenOut, amount, tradeType, routingConfig)
+
+	//if routes == nil {
+	//	// todo: error 처리 해 줄 것
 	//}
-	//}
 
+	//trade := a.buildTrade(currencyIn, currencyOut, tradeType, routes)
+
+	swapRoute := a.buildSwapRoute()
+	return swapRoute
+}
+
+func (a *AlphaRouter) determineCurrencyInOutFromTradeType(
+	tradeType TradeType,
+	baseCurrency currency.Currency,
+	quoteCurrency currency.Currency,
+) (currency.Currency, currency.Currency) {
+	if tradeType == EXACT_INPUT {
+		return baseCurrency, quoteCurrency
+	}
+	return quoteCurrency, baseCurrency
+}
+
+// todo: goroutine
+func (a *AlphaRouter) getSwapRouteFromChain(tokenIn, tokenOut currency.Token, amount float64, tradeType TradeType, routingConfig AlphaRouterConfig) *BestSwapRoute {
+	//percents, amount := a.getAmountDistribution(amount, routingConfig)
+
+	return &BestSwapRoute{}
+}
+
+func (a *AlphaRouter) getAmountDistribution(amount float64, routingConfig AlphaRouterConfig) (float64, float64) {
+
+	return 0, 0
+}
+
+func (a *AlphaRouter) buildTrade(currencyIn currency.Currency, currencyOut currency.Currency, tradeType TradeType, routes Routes) Trade {
+
+	return Trade{}
+}
+
+func (a *AlphaRouter) buildSwapRoute() SwapRoute {
 	return SwapRoute{}
 }
 
-//
-//func (a AlphaRouter) determineCurrencyInOutFromTradeType(
-//	tradeType TradeType,
-//	amount fractions.CurrencyAmount,
-//	quoteCurrency currency.Currency,
-//) (currency.Currency, currency.Currency) {
-//	if tradeType == EXACT_INPUT {
-//		return amount.Currency, quoteCurrency
-//	} else {
-//		return quoteCurrency, amount.Currency
-//	}
-//}
+func (a *AlphaRouter) setRouterConfig(routerConfig AlphaRouterConfig, chainId int) AlphaRouterConfig {
+	return AlphaRouterConfig{}
+}

@@ -1,6 +1,7 @@
 package core
 
 type SwapRoute struct {
+	route Routes
 }
 
 type IRouter interface {

@@ -15,7 +15,6 @@ type BaseCurrency struct {
 	address string
 }
 
-// 이게 필요할까??
 func NewBaseCurrency(chainId int64, decimals int64, symbol string, name string) *BaseCurrency {
 	// 아래 코드는 원문
 	//invariant(Number.isSafeInteger(chainId), 'CHAIN_ID');
