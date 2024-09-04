@@ -83,7 +83,8 @@ func TestMyRouterV2(t *testing.T) {
 			2,
 		},
 		{
-			[]*Pool{
+		        name: "최대 검색 길이 2의 다중 홉 스왑",
+			edges: []*Pool{
 				{"a:b", tokens["a"], tokens["b"], 4000, 1000},
 				{"a:c", tokens["a"], tokens["c"], 2000, 1000},
 				{"b:c", tokens["b"], tokens["c"], 2000, 4000}},
