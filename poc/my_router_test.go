@@ -32,6 +32,7 @@ func TestMyRouterV1(t *testing.T) {
 				{"a", "b", 2000.0, 2000.0 / 6.0},
 			},
 		},
+		// TODO: 아래 테스트 케이스도 통과해야 함. 값은 검증 필요. 
 		// {
 		// 	name: "극단적인 비율 스왑",
 		// 	edges: []*Pool{
@@ -100,6 +101,7 @@ func TestMyRouterV2(t *testing.T) {
 		requests        []SwapRequest
 		results         []SwapResult
 		maxSearchLength int
+		expectError     bool
 	}{
 		{
 			name: "최대 검색 길이 1의 다중 홉 스왑",
@@ -129,19 +131,50 @@ func TestMyRouterV2(t *testing.T) {
 			},
 			maxSearchLength: 1,
 		},
+		{
+			name: "다양한 경로 스왑",
+			edges: []*Pool{
+				{"a:b", tokens["a"], tokens["b"], 4000, 1000},
+				{"b:c", tokens["b"], tokens["c"], 2000, 4000},
+				{"a:c", tokens["a"], tokens["c"], 2000, 1000},
+				{"c:d", tokens["c"], tokens["d"], 1000, 500},
+			},
+			requests: []SwapRequest{
+				{"a", "d", 1000},
+			},
+			results: []SwapResult{
+				{"a", "d", 1000,  133.33333333333334}, // TODO: 임의로 넣은 값이라 검증 필요
+			},
+			maxSearchLength: 3,
+		},	
+		{
+			name: "검색 길이가 음수인 경우",
+			edges: []*Pool{
+				{"a:b", tokens["a"], tokens["b"], 4000, 1000},
+				{"b:c", tokens["b"], tokens["c"], 2000, 4000},
+				{"c:d", tokens["c"], tokens["d"], 1000, 500},
+				{"a:d", tokens["a"], tokens["d"], 3000, 1500},
+			},
+			requests: []SwapRequest{
+				{"a", "d", 1500},
+			},
+			maxSearchLength: -1,
+			expectError:    true,
+		},
 	}
 
 	for _, test := range tests {
-		t.Run("", func(t *testing.T) {
+		t.Run(test.name, func(t *testing.T) {
 			router := NewMyRouter(test.edges)
 
 			for i, request := range test.requests {
 				result, err := router.findRouteV2(request, test.maxSearchLength, nil)
 				if err != nil {
-					t.Fatalf("Router: can't find path: %v:%v", request.FromTokenSymbol, request.ToTokenSymbol)
+					if !test.expectError {
+						t.Fatalf("Router: can't find path: %v:%v", request.FromTokenSymbol, request.ToTokenSymbol)
+					}
+					continue
 				}
-				fmt.Print("result path: ")
-				fmt.Println(result)
 
 				diff := math.Abs(result[len(result)-1].AmountOut - test.results[i].AmountOut)
 				if diff > tolerance {
