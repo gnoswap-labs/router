@@ -6,7 +6,8 @@ import (
 	"testing"
 )
 
-func TestMyRouter(t *testing.T) {
+func TestMyRouterV1(t *testing.T) {
+	tolerance := 0.00000001 // 오차 범위
 	tokens := map[string]Token{
 		"a": Token{Symbol: "a"},
 		"b": Token{Symbol: "b"},
@@ -23,7 +24,7 @@ func TestMyRouter(t *testing.T) {
 			[]SwapRequest{
 				{"a", "b", 2000}},
 			[]SwapResult{
-				{2000.0, 2000.0 / 6.0},
+				{"a", "b", 2000.0, 2000.0 / 6.0},
 			},
 		},
 	}
@@ -33,20 +34,68 @@ func TestMyRouter(t *testing.T) {
 			router := NewMyRouter(test.edges)
 
 			for i, request := range test.requests {
-				result, err := router.Swap(request)
+				result, err := router.findRouteV1(request)
 				if err != nil {
-					t.Fatalf("Swap Error: can't find pool: %v:%v", request.FromToken, request.ToToken)
+					t.Fatalf("Swap Error: can't find pool: %v:%v", request.FromTokenSymbol, request.ToTokenSymbol)
 				}
 
-				diff := math.Abs(result.AmountOut - test.results[i].AmountOut)
-				tolerance := 0.00000001
+				diff := math.Abs(result[0].AmountOut - test.results[i].AmountOut)
 				if diff > tolerance {
-					t.Fatalf("Swap: Unexpected Token output number, expected: %v, got %v", test.results[i].AmountOut, result.AmountOut)
+					t.Fatalf("Swap: Unexpected Token output number, expected: %v, got %v", test.results[i].AmountOut, result[0].AmountOut)
 				}
+				fmt.Println(result[0])
+
+				fmt.Println("스왑 결과")
+				for _, pool := range router.network {
+					fmt.Printf("pool (%s) %s: %f %s: %f\n", pool.Address, pool.TokenA.Symbol, pool.ReserveA, pool.TokenB.Symbol, pool.ReserveB)
+				}
+			}
+		})
+	}
+}
+
+func TestMyRouterV2(t *testing.T) {
+	tolerance := 0.00000001 // 오차 범위
+	tokens := map[string]Token{
+		"a": Token{Symbol: "a"},
+		"b": Token{Symbol: "b"},
+		"c": Token{Symbol: "c"},
+		"d": Token{Symbol: "d"},
+	}
+
+	tests := []struct {
+		edges    []*Pool
+		requests []SwapRequest
+		results  []SwapResult
+	}{
+		{
+			[]*Pool{
+				{"a:b", tokens["a"], tokens["b"], 4000, 1000},
+				{"a:c", tokens["a"], tokens["c"], 2000, 1000},
+				{"b:c", tokens["b"], tokens["c"], 2000, 4000}},
+			[]SwapRequest{
+				{"a", "c", 2000}},
+			[]SwapResult{
+				{"a", "c", 2000.0, 571.4285714285},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run("", func(t *testing.T) {
+			router := NewMyRouter(test.edges)
+
+			for i, request := range test.requests {
+				result, err := router.findRouteV2(request, 10, nil)
+				if err != nil {
+					t.Fatalf("Router: can't find path: %v:%v", request.FromTokenSymbol, request.ToTokenSymbol)
+				}
+				fmt.Print("result path: ")
 				fmt.Println(result)
 
-				for _, pool := range router.network {
-					fmt.Println(pool)
+				diff := math.Abs(result[len(result)-1].AmountOut - test.results[i].AmountOut)
+				if diff > tolerance {
+					t.Fatalf("Router: Unexpected Token output number, expected: %v, got %v", test.results[i].AmountOut, result[len(result)-1].AmountOut)
 				}
 			}
 		})

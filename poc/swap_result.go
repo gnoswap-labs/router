@@ -1,6 +1,8 @@
 package poc
 
 type SwapResult struct {
-	AmountIn  float64
-	AmountOut float64
+	InTokenSymbol  string
+	OutTokenSymbol string
+	AmountIn       float64
+	AmountOut      float64
 }
